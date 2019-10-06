@@ -10,7 +10,7 @@ RUN apt-get -y install binutils-dev binutils-gold clang-6.0 clisp cmake \
   libboost-iostreams-dev libboost-program-options-dev libboost-regex-dev \
   libboost-system-dev libbsd-dev libclang-6.0-dev libcurl3-gnutls libelf-dev \
   libelf1 libgc-dev libgmp-dev liblzma-dev libncurses-dev libunwind-dev \
-  libzmq3-dev llvm nano openjdk-8-jre python3 python3-github python3-pip \
+  libzmq3-dev llvm nano openjdk-13-jre python3 python3-github python3-pip \
   python3-wget sbcl wget zlib1g-dev
 
 ENV USER ${APP_USER}
@@ -27,7 +27,6 @@ USER ${APP_USER}
 
 RUN git clone https://github.com/clasp-developers/clasp.git
 WORKDIR ${HOME}/clasp
-RUN git checkout dev
 RUN ./waf configure
 RUN ./waf build_cboehm
 
@@ -37,20 +36,16 @@ RUN ./waf install_cboehm
 WORKDIR ${HOME}
 RUN rm -rf clasp
 
-RUN python3 get-roswell.py
-RUN dpkg -i *.deb
-RUN rm *.deb
+RUN python3 get-roswell.py && dpkg -i *.deb && rm *.deb
 
 USER ${APP_USER}
 
-RUN pip3 install jupyter
+RUN pip3 install --user jupyter jupyterlab
 
-RUN ros install sbcl-bin
-RUN ros install abcl-bin
-RUN ros install ccl-bin
-RUN ros install cmu-bin
-RUN ros install clisp
-RUN ros use sbcl-bin
+RUN ros install sbcl-bin && ros install abcl-bin && ros install ccl-bin && \
+  ros install cmu-bin && ros install clisp && ros use sbcl-bin
 
-RUN wget https://beta.quicklisp.org/quicklisp.lisp
-RUN sbcl --load quicklisp.lisp --load install-quicklisp.lisp
+RUN wget https://beta.quicklisp.org/quicklisp.lisp && \
+  sbcl --load quicklisp.lisp --eval "(quicklisp-quickstart:install)" --quit && \
+  rm quicklisp.lisp
+
