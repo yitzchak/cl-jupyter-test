@@ -18,9 +18,6 @@ ENV HOME /home/${APP_USER}
 ENV PATH="${HOME}/.local/bin:${HOME}/.roswell/bin:${PATH}"
 
 RUN useradd --create-home --shell=/bin/false --uid=${APP_UID} ${APP_USER}
-COPY . ${HOME}
-RUN chown -R ${APP_UID} ${HOME}
-RUN chgrp -R ${APP_USER} ${HOME}
 
 WORKDIR ${HOME}
 USER ${APP_USER}
@@ -36,7 +33,8 @@ RUN ./waf install_cboehm
 WORKDIR ${HOME}
 RUN rm -rf clasp
 
-RUN python3 get-roswell.py && dpkg -i *.deb && rm *.deb
+RUN wget https://github.com/roswell/roswell/releases/download/v19.09.12.102/roswell_19.09.12.102-1_amd64.deb && \
+  dpkg -i *.deb && rm *.deb
 
 USER ${APP_USER}
 
@@ -47,5 +45,8 @@ RUN ros install sbcl-bin && ros install abcl-bin && ros install ccl-bin && \
 
 RUN wget https://beta.quicklisp.org/quicklisp.lisp && \
   sbcl --load quicklisp.lisp --eval "(quicklisp-quickstart:install)" --quit && \
-  rm quicklisp.lisp
+  rm quicklisp.lisp && \
+  git clone https://github.com/sionescu/bordeaux-threads.git ~/quicklisp/local-projects/bordeaux-threads
+
+COPY --chown=${APP_UID}:${APP_USER} home ${HOME}
 
