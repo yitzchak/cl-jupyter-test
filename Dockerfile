@@ -11,7 +11,7 @@ RUN apt-get -y install binutils-dev binutils-gold clang-6.0 clisp cmake \
   libboost-system-dev libbsd-dev libclang-6.0-dev libcurl3-gnutls libelf-dev \
   libelf1 libgc-dev libgmp-dev liblzma-dev libncurses-dev libunwind-dev \
   libzmq3-dev llvm nano openjdk-13-jre python3 python3-github python3-pip \
-  python3-wget sbcl wget zlib1g-dev
+  python3-wget sbcl wget zlib1g-dev npm
 
 ENV USER ${APP_USER}
 ENV HOME /home/${APP_USER}
@@ -38,7 +38,10 @@ RUN wget https://github.com/roswell/roswell/releases/download/v19.09.12.102/rosw
 
 USER ${APP_USER}
 
-RUN pip3 install --user jupyter jupyterlab
+RUN pip3 install --user jupyter jupyterlab jupyter_kernel_test && \
+  jupyter serverextension enable --user --py jupyterlab && \
+  jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
+  jupyter nbextension enable --user --py widgetsnbextension
 
 RUN ros install sbcl-bin && ros install abcl-bin && ros install ccl-bin && \
   ros install cmu-bin && ros install clisp && ros use sbcl-bin
