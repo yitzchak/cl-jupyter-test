@@ -43,13 +43,11 @@ RUN pip3 install --user jupyter jupyterlab jupyter_kernel_test && \
   jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
   jupyter nbextension enable --user --py widgetsnbextension
 
-RUN ros install sbcl-bin && ros install abcl-bin && ros install ccl-bin && \
-  ros install cmu-bin && ros install clisp && ros use sbcl-bin
+RUN ros install sbcl-bin
 
 RUN wget https://beta.quicklisp.org/quicklisp.lisp && \
   sbcl --load quicklisp.lisp --eval "(quicklisp-quickstart:install)" --quit && \
-  rm quicklisp.lisp && \
-  git clone https://github.com/sionescu/bordeaux-threads.git ~/quicklisp/local-projects/bordeaux-threads
+  rm quicklisp.lisp
 
 COPY --chown=${APP_UID}:${APP_USER} home ${HOME}
 
